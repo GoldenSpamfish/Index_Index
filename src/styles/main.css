@@ -1,0 +1,348 @@
+/* Global Index Observatory Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&family=Instrument+Sans:ital,wght@0,400..700;1,400..600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --paper: #F7F8F5;
+  --card: #FFFFFF;
+  --ink: #16262A;
+  --ink2: #3C4F52;
+  --mut: #6E7E7E;
+  --line: #D6DAD1;
+  --moss: #2E6B57;
+  --moss-light: #57B98A;
+  --clay: #B04A32;
+  --slate: #35617F;
+  --gold: #B8873B;
+  --shadow: 0 1px 2px rgba(22,38,42,.05), 0 8px 24px rgba(22,38,42,.06);
+  --disp: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--disp);
+  font-optical-sizing: auto;
+}
+
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 3vw, 32px);
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+
+.lead {
+  font-size: 15px;
+  color: var(--ink2);
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.lead b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lead a {
+  color: var(--moss);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+header {
+  padding: 38px 0 28px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #FFFFFF, var(--paper));
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.statline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 16px 0;
+  padding: 14px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.statline .stat-title {
+  flex: 0 0 100%;
+  margin: 0 0 -8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+
+.stat .k {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mut);
+  display: block;
+}
+
+.stat .v {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(247, 248, 245, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+nav .inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+nav a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 14px 12px;
+  color: var(--mut);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+nav a:hover {
+  color: var(--ink);
+}
+
+nav a.on {
+  color: var(--moss);
+  border-bottom-color: var(--moss);
+  font-weight: 600;
+}
+
+section {
+  padding: 48px 0;
+}
+
+section + section {
+  border-top: 1px solid var(--line);
+}
+
+.sec-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sec-h .num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--moss);
+  letter-spacing: .1em;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.pad {
+  padding: 16px 20px;
+}
+
+.cap {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--mut);
+  margin-bottom: 8px;
+}
+
+/* Map Country Paths */
+.cty {
+  cursor: pointer;
+  transition: opacity 0.1s, stroke-width 0.1s;
+}
+
+.cty:hover {
+  opacity: 0.72;
+  stroke: #16262A;
+  stroke-width: 1px;
+}
+
+.cty.nod {
+  cursor: default;
+}
+
+/* Tooltips */
+.gtip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 200;
+  background: #0F1C19;
+  color: #EAF0EC;
+  border-radius: 9px;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .28);
+  max-width: 240px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.gtip b {
+  font-family: var(--body);
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* Rankings list */
+.ranklist {
+  max-height: 480px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.rrow {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-bottom: 1px solid #EDEFEA;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.rrow:last-child {
+  border-bottom: 0;
+}
+
+.rrow:hover {
+  background: #F1F4EF;
+}
+
+.rrow.on {
+  background: #E7F0E9;
+  font-weight: 600;
+}
+
+.rrow .rk {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--mut);
+}
+
+.rrow .v {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink2);
+}
+
+.rrow.hd {
+  background: #F1F4EF;
+  position: sticky;
+  top: 0;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--mut);
+  cursor: default;
+  z-index: 10;
+}
+
+/* Controls */
+select, input[type="search"], input[type="number"], input[type="text"] {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--moss);
+}
+
+button {
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
