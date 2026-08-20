@@ -30,10 +30,12 @@ export class CorrelationStudio {
     this.modalTypeFilter = 'all'; // 'all' | 'custom' | 'composite' | 'primary'
     this.modalDomainFilter = 'all';
 
-    // Table filter state
+    // Table filter & sort state
     this.tableSearchQuery = '';
     this.tableTypeFilter = 'all';
     this.tableDomainFilter = 'all';
+    this.tableSortColumn = 'abs_r'; // 'name' | 'type' | 'domainLabel' | 'r' | 'abs_r' | 'rho' | 'r2'
+    this.tableSortDir = 'desc'; // 'asc' | 'desc'
   }
 
   setCustomIndexData(data, name = 'Custom Index') {
@@ -551,19 +553,32 @@ export class CorrelationStudio {
       .map(d => {
         const res = pearsonCorrelation(targetData, d.data || {});
         const rhoRes = spearmanCorrelation(targetData, d.data || {});
+        const dom = DOMAINS[d.domain] || { label: 'General' };
         return {
           id: d.id,
           name: d.name,
-          short: d.short,
+          short: d.short || d.id,
           type: d.type,
           domain: d.domain,
+          domainLabel: dom.label,
           r: res.r,
+          abs_r: Math.abs(res.r),
           r2: res.r2,
           rho: rhoRes.rho,
           n: res.n
         };
-      })
-      .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+      });
+
+    // Sort computed records
+    computed.sort((a, b) => {
+      let valA = a[this.tableSortColumn];
+      let valB = b[this.tableSortColumn];
+      if (typeof valA === 'string') {
+        const cmp = valA.localeCompare(valB);
+        return this.tableSortDir === 'asc' ? cmp : -cmp;
+      }
+      return this.tableSortDir === 'asc' ? valA - valB : valB - valA;
+    });
 
     const filtered = computed.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(this.tableSearchQuery.toLowerCase()) || item.short.toLowerCase().includes(this.tableSearchQuery.toLowerCase());
@@ -572,16 +587,31 @@ export class CorrelationStudio {
       return matchesSearch && matchesType && matchesDomain;
     });
 
+    const renderSortTh = (key, label, align = 'right') => {
+      const isActive = this.tableSortColumn === key;
+      const arrow = isActive ? (this.tableSortDir === 'asc' ? '▲' : '▼') : '⇅';
+      return `
+        <th class="p-2.5 text-${align} cursor-pointer hover:text-ink transition select-none sort-th ${isActive ? 'text-moss font-bold bg-moss/10' : 'text-muted'}" data-sort="${key}" title="Click to sort by ${label}">
+          <span class="inline-flex items-center gap-1 ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'}">
+            <span>${label}</span>
+            <span class="text-[10px] font-mono ${isActive ? 'text-moss' : 'text-muted/50'}">${arrow}</span>
+          </span>
+        </th>
+      `;
+    };
+
     let tableHtml = `
       <table class="w-full border-collapse text-xs font-mono">
-        <thead class="bg-paper sticky top-0 border-b border-line text-muted font-semibold">
+        <thead class="bg-paper sticky top-0 border-b border-line z-10 shadow-2xs">
           <tr>
-            <th class="p-2 text-left">Benchmark / Indicator</th>
-            <th class="p-2 text-center">Type</th>
-            <th class="p-2 text-right">Pearson (r)</th>
-            <th class="p-2 text-right">Spearman (ρ)</th>
-            <th class="p-2 text-right">R²</th>
-            <th class="p-2 text-center">Action</th>
+            ${renderSortTh('name', 'Benchmark / Indicator', 'left')}
+            ${renderSortTh('type', 'Type', 'center')}
+            ${renderSortTh('domainLabel', 'Domain', 'left')}
+            ${renderSortTh('r', 'Pearson (r)', 'right')}
+            ${renderSortTh('abs_r', 'Strength (|r|)', 'right')}
+            ${renderSortTh('rho', 'Spearman (ρ)', 'right')}
+            ${renderSortTh('r2', 'R² Variance', 'right')}
+            <th class="p-2.5 text-center text-muted font-normal">Action</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-line/60">
@@ -599,12 +629,14 @@ export class CorrelationStudio {
         <tr class="hover:bg-paper/80 transition">
           <td class="p-2 font-sans font-semibold text-ink">${row.name}</td>
           <td class="p-2 text-center">${typeBadge}</td>
+          <td class="p-2 text-left text-muted font-mono text-[11px]">${row.domainLabel.split(' ')[0]}</td>
           <td class="p-2 text-right ${rClass}">${row.r > 0 ? '+' : ''}${row.r.toFixed(3)}</td>
+          <td class="p-2 text-right font-mono font-bold text-ink">${row.abs_r.toFixed(3)}</td>
           <td class="p-2 text-right font-semibold text-ink">${row.rho > 0 ? '+' : ''}${row.rho.toFixed(3)}</td>
           <td class="p-2 text-right text-muted">${(row.r2 * 100).toFixed(1)}%</td>
           <td class="p-2 text-center">
             <button type="button" class="tbl-compare-btn px-2 py-0.5 rounded bg-paper border border-line hover:bg-moss hover:text-white text-[10px] transition" data-id="${row.id}">
-              Compare in Plot ↗
+              Compare ↗
             </button>
           </td>
         </tr>
@@ -614,6 +646,21 @@ export class CorrelationStudio {
     tableHtml += `</tbody></table>`;
     el.innerHTML = filtered.length ? tableHtml : `<div class="p-4 text-center text-xs text-muted font-mono">No matching metrics found.</div>`;
 
+    // Sort header click events
+    el.querySelectorAll('.sort-th').forEach(th => {
+      th.onclick = () => {
+        const key = th.dataset.sort;
+        if (this.tableSortColumn === key) {
+          this.tableSortDir = this.tableSortDir === 'desc' ? 'asc' : 'desc';
+        } else {
+          this.tableSortColumn = key;
+          this.tableSortDir = ['name', 'type', 'domainLabel'].includes(key) ? 'asc' : 'desc';
+        }
+        this.renderFullCorrelationTable(targetDataset);
+      };
+    });
+
+    // Row compare buttons
     el.querySelectorAll('.tbl-compare-btn').forEach(btn => {
       btn.onclick = () => {
         this.selectedX = btn.dataset.id;
