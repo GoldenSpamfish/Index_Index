@@ -164,14 +164,15 @@ export function calculateCompositeIndex(subIndicators, formula = 'arithmetic') {
 }
 
 /**
- * Calculates rankings (1 = highest score).
+ * Calculates rankings (1 = highest score, or lowest if polarity = -1).
  * @param {Object.<string, number>} scoreMap - ISO3 -> score
+ * @param {number} polarity - 1 (higher is better) | -1 (lower is better)
  * @returns {Object.<string, number>} ISO3 -> rank integer
  */
-export function calculateRankings(scoreMap) {
+export function calculateRankings(scoreMap, polarity = 1) {
   const sorted = Object.entries(scoreMap)
     .filter(([_, val]) => val !== null && !isNaN(val))
-    .sort((a, b) => b[1] - a[1]);
+    .sort((a, b) => (polarity === -1 ? a[1] - b[1] : b[1] - a[1]));
 
   const ranks = {};
   sorted.forEach(([iso, _], idx) => {

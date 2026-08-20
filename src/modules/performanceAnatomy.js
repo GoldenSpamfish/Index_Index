@@ -20,33 +20,37 @@ export class PerformanceAnatomyModule {
     const normScoresCache = {};
 
     INDICATOR_LIST.forEach(ind => {
-      rankingsCache[ind.id] = calculateRankings(ind.data);
-      normScoresCache[ind.id] = normalizeIndicator(ind.data, 'minmax', ind.polarity);
+      const polarity = ind.polarity !== undefined ? ind.polarity : 1;
+      const normScores = normalizeIndicator(ind.data, 'minmax', polarity);
+      normScoresCache[ind.id] = normScores;
+      rankingsCache[ind.id] = calculateRankings(normScores, 1);
     });
 
     const countryObj = getCountry(this.selectedCountry);
 
     // Evaluate Country Strengths vs Bottlenecks
-    const indPerformance = INDICATOR_LIST.map(ind => {
-      const rank = rankingsCache[ind.id][this.selectedCountry] || 999;
-      const score = normScoresCache[ind.id][this.selectedCountry] || 0;
-      const rawVal = ind.data[this.selectedCountry];
-      const totalCountries = Object.keys(rankingsCache[ind.id]).length || 180;
-      const percentile = ((totalCountries - rank) / totalCountries) * 100;
+    const indPerformance = INDICATOR_LIST
+      .filter(ind => ind.data && ind.data[this.selectedCountry] !== undefined && ind.data[this.selectedCountry] !== null && !isNaN(ind.data[this.selectedCountry]))
+      .map(ind => {
+        const rank = rankingsCache[ind.id][this.selectedCountry] || 999;
+        const score = normScoresCache[ind.id][this.selectedCountry] || 0;
+        const rawVal = ind.data[this.selectedCountry];
+        const totalCountries = Object.keys(rankingsCache[ind.id]).length || 183;
+        const percentile = ((totalCountries - rank + 1) / totalCountries) * 100;
 
-      return {
-        id: ind.id,
-        name: ind.name,
-        short: ind.short,
-        domain: ind.domain,
-        rank,
-        score,
-        rawVal,
-        unit: ind.unit,
-        percentile,
-        totalCountries
-      };
-    });
+        return {
+          id: ind.id,
+          name: ind.name,
+          short: ind.short,
+          domain: ind.domain,
+          rank,
+          score,
+          rawVal,
+          unit: ind.unit,
+          percentile,
+          totalCountries
+        };
+      });
 
     indPerformance.sort((a, b) => a.rank - b.rank);
 
