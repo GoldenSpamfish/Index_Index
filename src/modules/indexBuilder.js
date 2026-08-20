@@ -299,7 +299,7 @@ export class IndexBuilderStudio {
           isSelected ? 'bg-gold/20 border-gold text-ink font-bold shadow-xs' : 'bg-card border-line text-ink2 hover:bg-paper'
         }">
           <button type="button" class="load-saved-btn px-2.5 py-1.5 flex items-center gap-1.5" data-saved-id="${s.id}">
-            <span>★</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-gold shrink-0"></span>
             <span class="truncate max-w-[130px]">${s.name}</span>
           </button>
           <button type="button" class="del-saved-btn p-1.5 text-muted hover:text-clay hover:bg-clay/10 rounded-r-lg border-l border-line/60" data-saved-id="${s.id}" title="Delete saved index">
@@ -407,12 +407,12 @@ export class IndexBuilderStudio {
             <div class="flex items-center gap-1 shrink-0">
               <!-- Info / Learn More Toggle -->
               <button type="button" class="info-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showInfo ? 'bg-paper text-moss font-bold' : ''}" data-id="${item.id}" title="View methodology and source">
-                ℹ Learn More
+                Learn More
               </button>
 
               <!-- Advanced Settings Toggle -->
               <button type="button" class="settings-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showSettings ? 'bg-paper text-slate font-bold' : ''}" data-id="${item.id}" title="Advanced conversion transforms">
-                ⚙ Convert
+                Transform
               </button>
 
               <!-- Lock Weight -->
@@ -493,8 +493,7 @@ export class IndexBuilderStudio {
             <!-- Save & Action Buttons -->
             <div class="flex items-center gap-2 shrink-0">
               <button type="button" id="btn-save-index" class="py-2 px-3.5 bg-ink text-white hover:bg-moss rounded-lg font-mono text-xs font-semibold shadow-xs flex items-center gap-1.5 transition">
-                <span>💾</span>
-                <span>Save Index</span>
+                Save Index
               </button>
               <button type="button" id="btn-save-as-new" class="py-2 px-3 bg-paper border border-line hover:bg-card rounded-lg font-mono text-xs text-ink transition" title="Save as a new index copy">
                 + Save As New
@@ -525,7 +524,7 @@ export class IndexBuilderStudio {
             <div class="pt-2 border-t border-line/60">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs font-mono uppercase tracking-wider text-gold font-semibold flex items-center gap-1">
-                  <span>★</span> My Saved Custom Indices (${this.savedIndices.length})
+                  My Saved Custom Indices (${this.savedIndices.length})
                 </span>
               </div>
               <div class="flex flex-wrap gap-2">

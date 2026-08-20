@@ -152,7 +152,7 @@ export class PerformanceAnatomyModule {
         <!-- Compound Advantage & Collinearity Explainer -->
         <div class="p-5 bg-paper border border-line rounded-xl">
           <div class="sec-h mb-2">
-            <span class="num">★</span>
+            <span class="num font-mono text-xs text-moss font-bold">INSIGHT</span>
             <h4 class="font-serif font-semibold text-base text-ink">The Anatomy of Compound Advantage</h4>
           </div>
           <p class="text-sm text-ink2 font-sans leading-relaxed mb-4">

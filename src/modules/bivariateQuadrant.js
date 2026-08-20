@@ -96,7 +96,7 @@ export class BivariateQuadrantModule {
       const scores = this.computeSavedIndexScores(s);
       list.push({
         id: `saved_${s.id}`,
-        name: `★ ${s.name}`,
+        name: `${s.name}`,
         short: s.name,
         unit: 'Score (0–100)',
         type: 'custom',
@@ -113,7 +113,7 @@ export class BivariateQuadrantModule {
       const scores = this.computeBundleScores(b);
       list.push({
         id: `bundle_${b.id}`,
-        name: `⚡ ${b.name}`,
+        name: `${b.name}`,
         short: b.name.split(' ')[0],
         unit: 'Score (0–100)',
         type: 'composite',
@@ -241,7 +241,7 @@ export class BivariateQuadrantModule {
     const getBadge = (d) => {
       if (!d) return '';
       if (d.type === 'custom') {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40 shrink-0">★ CUSTOM MODEL</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40 shrink-0">CUSTOM MODEL</span>`;
       }
       if (d.type === 'composite') {
         return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-slate text-white tracking-wide shrink-0">COMPOSITE BENCHMARK</span>`;
@@ -280,8 +280,8 @@ export class BivariateQuadrantModule {
                   <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${getDomainColor(dataXObj)}"></span>
                   <span class="font-serif font-bold text-sm sm:text-base text-ink truncate">${dataXObj?.name || 'Select X'}</span>
                 </div>
-                <button type="button" id="btn-biv-pick-x" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition flex items-center gap-1.5 shadow-xs">
-                  <span>🔍</span> Change
+                <button type="button" id="btn-biv-pick-x" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition shadow-xs">
+                  Change
                 </button>
               </div>
             </div>
@@ -306,8 +306,8 @@ export class BivariateQuadrantModule {
                   <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${getDomainColor(dataYObj)}"></span>
                   <span class="font-serif font-bold text-sm sm:text-base text-ink truncate">${dataYObj?.name || 'Select Y'}</span>
                 </div>
-                <button type="button" id="btn-biv-pick-y" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition flex items-center gap-1.5 shadow-xs">
-                  <span>🔍</span> Change
+                <button type="button" id="btn-biv-pick-y" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition shadow-xs">
+                  Change
                 </button>
               </div>
             </div>
@@ -317,19 +317,19 @@ export class BivariateQuadrantModule {
           <div class="pt-2 border-t border-line/60 flex flex-wrap items-center gap-1.5">
             <span class="text-[10px] font-mono uppercase text-muted font-bold mr-1">Quick Comparison:</span>
             <button type="button" class="biv-quick-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="custom">
-              ★ Active Custom Index
+              Active Custom Index
             </button>
             <button type="button" class="biv-quick-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="gdp_pc">
-              ⚡ GDP per Capita
+              GDP per Capita
             </button>
             <button type="button" class="biv-quick-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="hdi">
-              ⚡ Human Development (HDI)
+              Human Development (HDI)
             </button>
             <button type="button" class="biv-quick-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="happiness">
-              ⚡ Happiness Score
+              Happiness Score
             </button>
             <button type="button" class="biv-quick-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="democracy">
-              ⚡ Democracy Index
+              Democracy Index
             </button>
           </div>
         </div>
@@ -432,7 +432,7 @@ export class BivariateQuadrantModule {
               <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                 <div class="flex bg-paper border border-line rounded-lg p-0.5 text-[10.5px]">
                   <button type="button" class="biv-modal-tab-btn px-2.5 py-1 rounded transition" data-type="all">All</button>
-                  <button type="button" class="biv-modal-tab-btn px-2.5 py-1 rounded transition" data-type="custom">★ My Custom Models</button>
+                  <button type="button" class="biv-modal-tab-btn px-2.5 py-1 rounded transition" data-type="custom">My Custom Models</button>
                   <button type="button" class="biv-modal-tab-btn px-2.5 py-1 rounded transition" data-type="composite">Composite</button>
                   <button type="button" class="biv-modal-tab-btn px-2.5 py-1 rounded transition" data-type="primary">Primary</button>
                 </div>
@@ -523,7 +523,7 @@ export class BivariateQuadrantModule {
       const selected = isSelected(item.id);
 
       const typeBadge = item.type === 'custom'
-        ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">★ CUSTOM MODEL</span>`
+        ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">CUSTOM MODEL</span>`
         : item.type === 'composite'
         ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-slate text-white">COMPOSITE BENCHMARK</span>`
         : `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-moss text-white">PRIMARY METRIC</span>`;
@@ -541,7 +541,7 @@ export class BivariateQuadrantModule {
           </div>
 
           <button type="button" class="py-1.5 px-3 rounded-lg ${selected ? 'bg-moss text-white' : 'bg-card border border-line hover:bg-moss hover:text-white'} font-mono text-xs font-semibold shrink-0 transition">
-            ${selected ? '✓ Selected' : 'Select'}
+            ${selected ? 'Selected' : 'Select'}
           </button>
         </div>
       `;

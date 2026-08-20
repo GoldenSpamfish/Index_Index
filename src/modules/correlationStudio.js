@@ -110,7 +110,7 @@ export class CorrelationStudio {
       const scores = this.computeSavedIndexScores(s);
       list.push({
         id: `saved_${s.id}`,
-        name: `★ ${s.name}`,
+        name: `${s.name}`,
         short: s.name,
         unit: 'Score (0–100)',
         type: 'custom',
@@ -126,7 +126,7 @@ export class CorrelationStudio {
       const scores = this.computeBundleScores(b);
       list.push({
         id: `bundle_${b.id}`,
-        name: `⚡ ${b.name}`,
+        name: `${b.name}`,
         short: b.name.split(' ')[0],
         unit: 'Score (0–100)',
         type: 'composite',
@@ -190,7 +190,7 @@ export class CorrelationStudio {
     const getBadge = (d) => {
       if (!d) return '';
       if (d.type === 'custom') {
-        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40 shrink-0">★ CUSTOM MODEL</span>`;
+        return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40 shrink-0">CUSTOM MODEL</span>`;
       }
       if (d.type === 'composite') {
         return `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-slate text-white tracking-wide shrink-0">COMPOSITE BENCHMARK</span>`;
@@ -268,8 +268,8 @@ export class CorrelationStudio {
                   <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${getDomainColor(dataXObj)}"></span>
                   <span class="font-serif font-bold text-sm sm:text-base text-ink truncate">${dataXObj?.name || 'Select X'}</span>
                 </div>
-                <button type="button" id="btn-pick-x" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition flex items-center gap-1.5 shadow-xs">
-                  <span>🔍</span> Change
+                <button type="button" id="btn-pick-x" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition shadow-xs">
+                  Change
                 </button>
               </div>
               <span class="font-mono text-[10.5px] text-muted truncate">${dataXObj?.unit ? `Unit: ${dataXObj.unit}` : ''}</span>
@@ -295,8 +295,8 @@ export class CorrelationStudio {
                   <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${getDomainColor(dataYObj)}"></span>
                   <span class="font-serif font-bold text-sm sm:text-base text-ink truncate">${dataYObj?.name || 'Select Y'}</span>
                 </div>
-                <button type="button" id="btn-pick-y" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition flex items-center gap-1.5 shadow-xs">
-                  <span>🔍</span> Change
+                <button type="button" id="btn-pick-y" class="py-1.5 px-3 rounded-lg bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-xs font-semibold shrink-0 transition shadow-xs">
+                  Change
                 </button>
               </div>
               <span class="font-mono text-[10.5px] text-muted truncate">${dataYObj?.unit ? `Unit: ${dataYObj.unit}` : ''}</span>
@@ -307,25 +307,25 @@ export class CorrelationStudio {
           <div class="pt-2 border-t border-line/60 flex flex-wrap items-center gap-1.5">
             <span class="text-[10px] font-mono uppercase text-muted font-bold mr-1">Quick Benchmarks:</span>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="custom">
-              ★ Active Custom Index
+              Active Custom Index
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="gdp_pc">
-              ⚡ GDP per Capita
+              GDP per Capita
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="happiness">
-              ⚡ Happiness Score
+              Happiness Score
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="rule_of_law">
-              ⚡ Rule of Law
+              Rule of Law
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="co2_pc">
-              ⚡ CO2 Emissions
+              CO2 Emissions
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="gini_index">
-              ⚡ Gini Inequality
+              Gini Inequality
             </button>
             <button type="button" class="quick-compare-btn px-2.5 py-1 rounded bg-paper border border-line hover:bg-card hover:border-moss font-mono text-[11px] text-ink transition" data-target-id="homicide_rate">
-              ⚡ Homicide Rate
+              Homicide Rate
             </button>
           </div>
         </div>
@@ -355,7 +355,7 @@ export class CorrelationStudio {
             <div class="flex flex-wrap items-center gap-2">
               <div class="flex bg-paper border border-line rounded-lg p-0.5 text-[10px] font-mono">
                 <button type="button" class="tbl-type-btn px-2 py-0.5 rounded transition ${this.tableTypeFilter === 'all' ? 'bg-card font-bold text-ink shadow-xs' : 'text-muted'}" data-type="all">All</button>
-                <button type="button" class="tbl-type-btn px-2 py-0.5 rounded transition ${this.tableTypeFilter === 'custom' ? 'bg-card font-bold text-gold shadow-xs' : 'text-muted'}" data-type="custom">★ Custom</button>
+                <button type="button" class="tbl-type-btn px-2 py-0.5 rounded transition ${this.tableTypeFilter === 'custom' ? 'bg-card font-bold text-gold shadow-xs' : 'text-muted'}" data-type="custom">Custom</button>
                 <button type="button" class="tbl-type-btn px-2 py-0.5 rounded transition ${this.tableTypeFilter === 'composite' ? 'bg-card font-bold text-slate shadow-xs' : 'text-muted'}" data-type="composite">Composite</button>
                 <button type="button" class="tbl-type-btn px-2 py-0.5 rounded transition ${this.tableTypeFilter === 'primary' ? 'bg-card font-bold text-moss shadow-xs' : 'text-muted'}" data-type="primary">Primary</button>
               </div>
@@ -392,7 +392,7 @@ export class CorrelationStudio {
               <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                 <div class="flex bg-paper border border-line rounded-lg p-0.5 text-[10.5px]">
                   <button type="button" class="modal-tab-btn px-2.5 py-1 rounded transition" data-type="all">All</button>
-                  <button type="button" class="modal-tab-btn px-2.5 py-1 rounded transition" data-type="custom">★ My Custom Models</button>
+                  <button type="button" class="modal-tab-btn px-2.5 py-1 rounded transition" data-type="custom">My Custom Models</button>
                   <button type="button" class="modal-tab-btn px-2.5 py-1 rounded transition" data-type="composite">Composite</button>
                   <button type="button" class="modal-tab-btn px-2.5 py-1 rounded transition" data-type="primary">Primary</button>
                 </div>
@@ -620,7 +620,7 @@ export class CorrelationStudio {
     filtered.forEach(row => {
       let rClass = row.r > 0.6 ? 'text-moss font-bold' : row.r < -0.4 ? 'text-clay font-bold' : 'text-slate';
       let typeBadge = row.type === 'custom'
-        ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-gold/20 text-gold border border-gold/40">★ CUSTOM</span>`
+        ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-gold/20 text-gold border border-gold/40">CUSTOM</span>`
         : row.type === 'composite'
         ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate/15 text-slate border border-slate/30">COMPOSITE</span>`
         : `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-moss/15 text-moss border border-moss/30">PRIMARY</span>`;
@@ -716,7 +716,7 @@ export class CorrelationStudio {
       const selected = isSelected(item.id);
 
       const typeBadge = item.type === 'custom'
-        ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">★ CUSTOM MODEL</span>`
+        ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">CUSTOM MODEL</span>`
         : item.type === 'composite'
         ? `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-slate text-white">COMPOSITE BENCHMARK</span>`
         : `<span class="px-2 py-0.5 rounded text-[9.5px] font-mono font-bold bg-moss text-white">PRIMARY METRIC</span>`;
@@ -734,7 +734,7 @@ export class CorrelationStudio {
           </div>
 
           <button type="button" class="py-1.5 px-3 rounded-lg ${selected ? 'bg-moss text-white' : 'bg-card border border-line hover:bg-moss hover:text-white'} font-mono text-xs font-semibold shrink-0 transition">
-            ${selected ? '✓ Selected' : 'Select'}
+            ${selected ? 'Selected' : 'Select'}
           </button>
         </div>
       `;
