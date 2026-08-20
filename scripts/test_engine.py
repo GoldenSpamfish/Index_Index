@@ -16,7 +16,9 @@ required_files = [
     'src/modules/performanceAnatomy.js',
     'src/modules/bivariateQuadrant.js',
     'src/modules/sensitivityAnalyzer.js',
-    'src/modules/importerExporter.js'
+    'src/modules/importerExporter.js',
+    'src/engine/worldBankApi.js',
+    'src/modules/worldBankDrawer.js'
 ]
 
 for f in required_files:

@@ -9,6 +9,7 @@ export class IndexBuilderStudio {
   constructor(options = {}) {
     this.containerId = options.containerId || 'index-builder-container';
     this.onUpdate = options.onUpdate || (() => {});
+    this.onOpenWorldBankDrawer = options.onOpenWorldBankDrawer || (() => {});
 
     // Active state
     this.customIndexName = 'Human Flourishing & Development';
@@ -582,7 +583,12 @@ export class IndexBuilderStudio {
             <!-- Add More Indicators from Library with Categorization Filter -->
             <div class="p-4 bg-card border border-line rounded-xl shadow-xs">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
-                <span class="font-serif font-semibold text-sm text-ink">Add from Library</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-serif font-semibold text-sm text-ink">Add from Library</span>
+                  <button type="button" id="btn-open-wb-drawer" class="px-2.5 py-1 bg-moss/10 border border-moss/40 text-moss hover:bg-moss hover:text-white rounded-lg font-mono text-[11px] font-semibold shadow-xs flex items-center gap-1 transition">
+                    + World Bank Library (30k+) →
+                  </button>
+                </div>
                 
                 <div class="flex flex-wrap items-center gap-2">
                   <!-- Type Filter Tabs -->
@@ -825,6 +831,12 @@ export class IndexBuilderStudio {
         this.selectedDomainFilter = e.target.value;
         this.render();
       };
+    }
+
+    // World Bank Drawer Open
+    const wbBtn = container.querySelector('#btn-open-wb-drawer');
+    if (wbBtn) {
+      wbBtn.onclick = () => this.onOpenWorldBankDrawer();
     }
   }
 }

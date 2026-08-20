@@ -16,6 +16,7 @@ import { PerformanceAnatomyModule } from './modules/performanceAnatomy.js';
 import { BivariateQuadrantModule } from './modules/bivariateQuadrant.js';
 import { SensitivityAnalyzerModule } from './modules/sensitivityAnalyzer.js';
 import { ImporterExporterModule } from './modules/importerExporter.js';
+import { WorldBankDrawerModule } from './modules/worldBankDrawer.js';
 
 class App {
   constructor() {
@@ -36,13 +37,21 @@ class App {
     this.bivariateModule = null;
     this.sensitivityModule = null;
     this.importerExporter = null;
+    this.wbDrawer = null;
   }
 
   init() {
     // 1. Initialize Sub-modules
+    this.wbDrawer = new WorldBankDrawerModule({
+      containerId: 'world-bank-drawer-container',
+      onIndicatorImported: importedData => this.onWorldBankIndicatorImported(importedData)
+    });
+    this.wbDrawer.init();
+
     this.builderStudio = new IndexBuilderStudio({
       containerId: 'index-builder-container',
-      onUpdate: state => this.onIndexConfigUpdate(state)
+      onUpdate: state => this.onIndexConfigUpdate(state),
+      onOpenWorldBankDrawer: (q) => this.wbDrawer.open(q)
     });
 
     this.corrStudio = new CorrelationStudio({
@@ -71,6 +80,7 @@ class App {
     this.importerExporter = new ImporterExporterModule({
       containerId: 'data-studio-container',
       onImport: customData => this.onCustomDataImported(customData),
+      onOpenWorldBankDrawer: (q) => this.wbDrawer.open(q),
       getCurrentIndexState: () => ({
         name: this.builderStudio.customIndexName,
         desc: this.builderStudio.customIndexDesc,
@@ -403,6 +413,20 @@ class App {
     // Add directly to builder
     if (this.builderStudio) {
       this.builderStudio.addIndicator(newId);
+    }
+  }
+
+  onWorldBankIndicatorImported(importedData) {
+    // Add directly into active indicators in builder
+    if (this.builderStudio) {
+      this.builderStudio.addIndicator(importedData.id);
+    }
+    // Refresh modules
+    if (this.corrStudio) {
+      this.corrStudio.render();
+    }
+    if (this.bivariateModule) {
+      this.bivariateModule.render();
     }
   }
 }

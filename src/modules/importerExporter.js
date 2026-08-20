@@ -6,6 +6,7 @@ export class ImporterExporterModule {
   constructor(options = {}) {
     this.containerId = options.containerId || 'data-studio-container';
     this.onImport = options.onImport || (() => {});
+    this.onOpenWorldBankDrawer = options.onOpenWorldBankDrawer || (() => {});
     this.getCurrentIndexState = options.getCurrentIndexState || (() => ({}));
   }
 
@@ -207,10 +208,28 @@ export class ImporterExporterModule {
 
     container.innerHTML = `
       <div class="space-y-6">
+        
+        <!-- Live World Bank Open Data Explorer Card -->
+        <div class="p-6 bg-card border border-line rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-moss/15 text-moss border border-moss/30">DIRECT API INGESTION</span>
+              <span class="text-xs font-mono text-muted">29,500+ Development Datasets</span>
+            </div>
+            <h3 class="font-serif font-semibold text-lg text-ink">Explore World Bank & Global Open Data</h3>
+            <p class="text-xs text-muted font-sans max-w-xl">
+              Search and stream live indicators across health, energy, trade, demographics, and technology without uploading files.
+            </p>
+          </div>
+          <button type="button" id="btn-open-wb-drawer-studio" class="px-5 py-3 rounded-xl bg-ink text-white hover:bg-moss font-mono text-xs font-semibold shadow-xs transition shrink-0">
+            Open World Bank Catalog →
+          </button>
+        </div>
+
         <!-- Import Custom Data -->
         <div class="p-6 bg-card border border-line rounded-xl shadow-xs">
           <div class="mb-4">
-            <h3 class="font-serif font-semibold text-lg text-ink">Import Custom Indicator Data</h3>
+            <h3 class="font-serif font-semibold text-lg text-ink">Import Custom Indicator Data from File</h3>
             <p class="text-xs text-muted font-sans">
               Drag and drop any CSV or JSON file containing country-level data (with ISO3 codes or country names). It will be immediately added to the catalog.
             </p>
@@ -274,6 +293,11 @@ export class ImporterExporterModule {
   }
 
   attachEventListeners(container) {
+    const btnWb = container.querySelector('#btn-open-wb-drawer-studio');
+    if (btnWb) {
+      btnWb.onclick = () => this.onOpenWorldBankDrawer();
+    }
+
     const dropZone = container.querySelector('#drop-zone');
     const fileInput = container.querySelector('#file-input');
     const statusEl = container.querySelector('#import-status');
