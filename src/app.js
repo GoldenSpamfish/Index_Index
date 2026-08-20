@@ -432,7 +432,25 @@ class App {
 }
 
 // Bootstrap when DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  const app = new App();
-  app.init();
-});
+function startApp() {
+  try {
+    console.log('[APP] Starting application bootstrap...');
+    const app = new App();
+    window.APP_INSTANCE = app;
+    app.init();
+    console.log('[APP] App initialized successfully!');
+  } catch (err) {
+    console.error('[APP ERROR] Initialization failed:', err);
+    const errDiv = document.createElement('div');
+    errDiv.id = 'app-fatal-error';
+    errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:white;padding:20px;font-family:monospace;font-size:14px;white-space:pre-wrap;';
+    errDiv.textContent = `FATAL APP ERROR: ${err.message}\n\nStack:\n${err.stack}`;
+    document.body.prepend(errDiv);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}

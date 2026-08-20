@@ -234,7 +234,7 @@ export class WorldBankDrawerModule {
 
           <!-- Modal Footer -->
           <div class="p-4 border-t border-line bg-paper/60 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs font-mono text-muted">
-            <div>Harmonizes 5-year observation windows (`mrv=5`) across 183 sovereign nations.</div>
+            <div>Harmonizes 5-year observation windows (mrv=5) across 183 sovereign nations.</div>
             <div class="text-ink font-semibold">Ready to test in Index Builder</div>
           </div>
 
