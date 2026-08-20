@@ -1,6 +1,7 @@
 // Custom Index Builder Studio Module with Live Synchronized Map, Methodology Drawers, Conversion Transforms, and Custom Index Persistence
 import { INDICATORS, DOMAINS, BENCHMARK_BUNDLES, INDICATOR_LIST } from '../data/indicators.js';
 import { getCountry } from '../data/countries.js';
+import { calculateCompositeIndex, normalizeIndicator } from '../engine/stats.js';
 import { renderChoroplethMap } from './mapEngine.js';
 
 const STORAGE_KEY = 'gio_saved_custom_indices_v1';
@@ -117,7 +118,7 @@ export class IndexBuilderStudio {
   setLiveScores(scores, ranks) {
     this.liveScores = scores || {};
     this.liveRanks = ranks || {};
-    this.renderLiveMapAndLeaderboard();
+    this.renderLivePreviews();
   }
 
   loadBundle(bundleId) {
@@ -280,36 +281,6 @@ export class IndexBuilderStudio {
 
     const totalWeight = this.activeIndicators.reduce((s, i) => s + i.weight, 0);
 
-    // Preset chips
-    const bundleButtons = BENCHMARK_BUNDLES.map(b => {
-      const isSelected = this.activeBundleId === b.id;
-      return `<button type="button" class="preset-btn px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
-        isSelected
-          ? 'bg-ink text-white border-ink font-semibold shadow-sm'
-          : 'bg-card text-ink2 border-line hover:bg-paper hover:text-ink'
-      }" data-bundle="${b.id}">
-        ${b.name}
-      </button>`;
-    }).join('');
-
-    // Saved custom indices chips
-    const savedButtons = this.savedIndices.map(s => {
-      const isSelected = this.activeSavedId === s.id;
-      return `
-        <div class="inline-flex items-center rounded-lg border text-xs font-mono transition-all ${
-          isSelected ? 'bg-gold/20 border-gold text-ink font-bold shadow-xs' : 'bg-card border-line text-ink2 hover:bg-paper'
-        }">
-          <button type="button" class="load-saved-btn px-2.5 py-1.5 flex items-center gap-1.5" data-saved-id="${s.id}">
-            <span class="w-1.5 h-1.5 rounded-full bg-gold shrink-0"></span>
-            <span class="truncate max-w-[130px]">${s.name}</span>
-          </button>
-          <button type="button" class="del-saved-btn p-1.5 text-muted hover:text-clay hover:bg-clay/10 rounded-r-lg border-l border-line/60" data-saved-id="${s.id}" title="Delete saved index">
-            ✕
-          </button>
-        </div>
-      `;
-    }).join('');
-
     // Active sub-indicators
     const indicatorRows = this.activeIndicators.map(item => {
       const ind = INDICATORS[item.id] || { name: item.id, domain: 'wellbeing', unit: '', short: item.id, type: 'primary', desc: '', methodology: '', wikiUrl: '' };
@@ -355,14 +326,13 @@ export class IndexBuilderStudio {
         settingsDrawer = `
           <div class="mt-2.5 p-3.5 bg-paper/80 border border-line rounded-lg text-xs space-y-3 font-mono animate-fadeIn">
             <div class="flex items-center justify-between border-b border-line/60 pb-1.5">
-              <span class="font-mono text-[10px] text-muted uppercase font-semibold">Advanced Mathematical Conversion</span>
-              <span class="text-[10px] text-moss">Fine-Grained Controls</span>
+              <span class="font-mono text-[10px] text-muted uppercase font-semibold">Conversion Settings</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <!-- Transform -->
               <div>
-                <label class="block text-muted text-[10px] uppercase font-semibold mb-1">Mathematical Transform</label>
+                <label class="block text-muted text-[10px] uppercase font-semibold mb-1">Transform</label>
                 <select class="transform-sel w-full p-1.5 bg-card border border-line rounded text-xs font-mono text-ink" data-id="${item.id}">
                   <option value="linear" ${item.transform === 'linear' ? 'selected' : ''}>Linear (Standard)</option>
                   <option value="log" ${item.transform === 'log' ? 'selected' : ''}>Logarithmic ln(x+1)</option>
@@ -372,10 +342,10 @@ export class IndexBuilderStudio {
 
               <!-- Polarity -->
               <div>
-                <label class="block text-muted text-[10px] uppercase font-semibold mb-1">Polarity Direction</label>
+                <label class="block text-muted text-[10px] uppercase font-semibold mb-1">Direction</label>
                 <select class="polarity-sel w-full p-1.5 bg-card border border-line rounded text-xs font-mono text-ink" data-id="${item.id}">
                   <option value="1" ${item.polarity === 1 ? 'selected' : ''}>Higher is Better (+)</option>
-                  <option value="-1" ${item.polarity === -1 ? 'selected' : ''}>Lower is Better (Inverted)</option>
+                  <option value="-1" ${item.polarity === -1 ? 'selected' : ''}>Lower is Better (-)</option>
                 </select>
               </div>
 
@@ -406,13 +376,13 @@ export class IndexBuilderStudio {
             </div>
 
             <div class="flex items-center gap-1 shrink-0">
-              <!-- Info / Learn More Toggle -->
-              <button type="button" class="info-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showInfo ? 'bg-paper text-moss font-bold' : ''}" data-id="${item.id}" title="View methodology and source">
-                Learn More
+              <!-- Info / Details Toggle -->
+              <button type="button" class="info-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showInfo ? 'bg-paper text-moss font-bold' : ''}" data-id="${item.id}" title="View details">
+                Info
               </button>
 
               <!-- Advanced Settings Toggle -->
-              <button type="button" class="settings-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showSettings ? 'bg-paper text-slate font-bold' : ''}" data-id="${item.id}" title="Advanced conversion transforms">
+              <button type="button" class="settings-btn p-1 px-1.5 rounded hover:bg-paper text-muted hover:text-ink text-[11px] font-mono transition ${item.showSettings ? 'bg-paper text-slate font-bold' : ''}" data-id="${item.id}" title="Settings">
                 Transform
               </button>
 
@@ -441,41 +411,34 @@ export class IndexBuilderStudio {
       `;
     }).join('');
 
-    // Catalog filtering
-    const unselected = INDICATOR_LIST.filter(ind => !this.activeIndicators.some(i => i.id === ind.id));
-    const allCount = unselected.length;
-    const compCount = unselected.filter(i => i.type === 'composite').length;
-    const primCount = unselected.filter(i => i.type === 'primary').length;
-
-    const filteredCatalog = unselected.filter(ind => {
-      const matchesSearch = ind.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || ind.short.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesDomain = this.selectedDomainFilter === 'all' || ind.domain === this.selectedDomainFilter;
-      const matchesType = this.selectedTypeFilter === 'all' || ind.type === this.selectedTypeFilter;
-      return matchesSearch && matchesDomain && matchesType;
-    });
-
-    const catalogItems = filteredCatalog.map(ind => {
-      const domainInfo = DOMAINS[ind.domain] || { color: '#2E6B57', label: 'Domain' };
-      const isComposite = ind.type === 'composite';
-
+    // Presets & Saved Buttons
+    const bundleButtons = Object.entries(BENCHMARK_BUNDLES).map(([key, bundle]) => {
+      const isSelected = this.activeBundleId === key;
       return `
-        <div class="p-2.5 bg-paper border border-line rounded-lg flex items-center justify-between hover:border-moss transition gap-2">
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full shrink-0" style="background:${domainInfo.color}"></span>
-              <span class="font-sans font-semibold text-[11px] text-ink truncate">${ind.name}</span>
-            </div>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${isComposite ? 'bg-slate/15 text-slate border border-slate/30' : 'bg-moss/15 text-moss border border-moss/30'}">${isComposite ? 'COMPOSITE BENCHMARK' : 'PRIMARY METRIC'}</span>
-              <span class="text-[9.5px] text-muted font-mono truncate">· ${domainInfo.label.split(' ')[0]}</span>
-            </div>
-          </div>
-          <button type="button" class="add-ind-btn px-2 py-1 rounded bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-[10.5px] shrink-0 transition font-semibold" data-id="${ind.id}">
-            + Add
+        <button type="button" class="bundle-preset-btn px-2.5 py-1 rounded-lg text-xs font-mono border transition ${isSelected ? 'bg-moss text-white border-moss shadow-xs' : 'bg-card border-line hover:border-moss text-ink2'}" data-id="${key}">
+          ${bundle.name}
+        </button>
+      `;
+    }).join('');
+
+    const savedButtons = this.savedIndices.map(saved => {
+      const isSelected = this.activeSavedId === saved.id;
+      return `
+        <div class="flex items-center rounded-lg border text-xs font-mono overflow-hidden transition ${isSelected ? 'border-gold bg-gold/10' : 'border-line bg-card'}">
+          <button type="button" class="load-saved-btn px-2.5 py-1 text-ink hover:text-gold transition font-semibold" data-id="${saved.id}">
+            ${saved.name}
+          </button>
+          <button type="button" class="del-saved-btn px-1.5 py-1 text-muted hover:text-clay hover:bg-clay/10 transition border-l border-line/60" data-id="${saved.id}" title="Delete saved index">
+            ✕
           </button>
         </div>
       `;
     }).join('');
+
+    const unselected = INDICATOR_LIST.filter(ind => !this.activeIndicators.some(i => i.id === ind.id));
+    const allCount = unselected.length;
+    const compCount = unselected.filter(i => i.type === 'composite').length;
+    const primCount = unselected.filter(i => i.type === 'primary').length;
 
     container.innerHTML = `
       <div class="space-y-6">
@@ -485,8 +448,8 @@ export class IndexBuilderStudio {
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="eyebrow">Active Custom Model</span>
-                ${this.activeSavedId ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">SAVED IN MY LIBRARY</span>' : ''}
+                <span class="eyebrow">Custom Model</span>
+                ${this.activeSavedId ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">SAVED MODEL</span>' : ''}
               </div>
               <input type="text" id="custom-index-name-input" value="${this.customIndexName}" placeholder="Name your index..." class="w-full text-lg sm:text-2xl font-serif font-bold text-ink bg-transparent border-0 border-b border-transparent hover:border-line focus:border-moss p-0 pb-1 focus:ring-0 focus:outline-none transition"/>
             </div>
@@ -513,7 +476,7 @@ export class IndexBuilderStudio {
           <!-- Curated Benchmarks -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <span class="text-xs font-mono uppercase tracking-wider text-muted font-semibold">1-Click Benchmark Bundles</span>
+              <span class="text-xs font-mono uppercase tracking-wider text-muted font-semibold">Preset Benchmarks</span>
             </div>
             <div class="flex flex-wrap gap-2">
               ${bundleButtons}
@@ -525,7 +488,7 @@ export class IndexBuilderStudio {
             <div class="pt-2 border-t border-line/60">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs font-mono uppercase tracking-wider text-gold font-semibold flex items-center gap-1">
-                  My Saved Custom Indices (${this.savedIndices.length})
+                  Saved Models (${this.savedIndices.length})
                 </span>
               </div>
               <div class="flex flex-wrap gap-2">
@@ -553,7 +516,7 @@ export class IndexBuilderStudio {
               </div>
 
               <div>
-                <label class="block text-muted uppercase tracking-wider mb-1 font-semibold text-[10px]">Global Normalization Baseline</label>
+                <label class="block text-muted uppercase tracking-wider mb-1 font-semibold text-[10px]">Normalization</label>
                 <select id="sel-normalization" class="w-full p-1.5 bg-card border border-line rounded-lg text-ink font-mono text-xs">
                   <option value="minmax" ${this.normalizationMethod === 'minmax' ? 'selected' : ''}>Min-Max Scale (0 to 100)</option>
                   <option value="zscore" ${this.normalizationMethod === 'zscore' ? 'selected' : ''}>Z-Score (Standardized)</option>
@@ -584,18 +547,18 @@ export class IndexBuilderStudio {
             <div class="p-4 bg-card border border-line rounded-xl shadow-xs">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
                 <div class="flex items-center gap-2">
-                  <span class="font-serif font-semibold text-sm text-ink">Add from Library</span>
+                  <span class="font-serif font-semibold text-sm text-ink">Add Indicators</span>
                   <button type="button" id="btn-open-wb-drawer" class="px-2.5 py-1 bg-moss/10 border border-moss/40 text-moss hover:bg-moss hover:text-white rounded-lg font-mono text-[11px] font-semibold shadow-xs flex items-center gap-1 transition">
-                    + World Bank Library (30k+) →
+                    + World Bank Catalog
                   </button>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-2">
                   <!-- Type Filter Tabs -->
                   <div class="flex bg-paper border border-line rounded-lg p-0.5 text-[10px] font-mono">
-                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'all' ? 'bg-card font-bold text-ink shadow-xs' : 'text-muted'}" data-type="all">All (${allCount})</button>
-                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'composite' ? 'bg-card font-bold text-slate shadow-xs' : 'text-muted'}" data-type="composite">Composite (${compCount})</button>
-                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'primary' ? 'bg-card font-bold text-moss shadow-xs' : 'text-muted'}" data-type="primary">Primary (${primCount})</button>
+                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'all' ? 'bg-card font-bold text-ink shadow-xs' : 'text-muted'}" data-type="all">All</button>
+                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'composite' ? 'bg-card font-bold text-slate shadow-xs' : 'text-muted'}" data-type="composite">Composite</button>
+                    <button type="button" class="catalog-type-btn px-2 py-0.5 rounded transition ${this.selectedTypeFilter === 'primary' ? 'bg-card font-bold text-moss shadow-xs' : 'text-muted'}" data-type="primary">Primary</button>
                   </div>
 
                   <!-- Domain Filter -->
@@ -605,12 +568,12 @@ export class IndexBuilderStudio {
                   </select>
 
                   <!-- Search -->
-                  <input type="search" id="catalog-search" placeholder="Search 124 indicators..." value="${this.searchQuery}" class="p-1 px-2 bg-paper border border-line rounded text-xs font-mono w-28 sm:w-36"/>
+                  <input type="search" id="catalog-search" placeholder="Search indicators..." value="${this.searchQuery}" class="p-1 px-2 bg-paper border border-line rounded text-xs font-mono w-28 sm:w-36"/>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
-                ${catalogItems.length ? catalogItems : '<div class="col-span-full py-4 text-center text-xs text-muted font-mono">No matching unselected indicators found.</div>'}
+              <div id="builder-catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
+                <!-- Dynamically populated -->
               </div>
             </div>
           </div>
@@ -621,10 +584,9 @@ export class IndexBuilderStudio {
             <div class="p-4 bg-card border border-line rounded-xl shadow-sm">
               <div class="flex items-center justify-between mb-2">
                 <span class="font-mono text-xs uppercase tracking-wider text-muted font-semibold flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-moss animate-pulse"></span>
-                  Live Choropleth Update
+                  <span class="w-2 h-2 rounded-full bg-moss"></span>
+                  Index Map Preview
                 </span>
-                <span class="font-mono text-[10px] text-muted font-semibold">Drag sliders to watch shift</span>
               </div>
               <div id="builder-live-map-container" class="w-full h-auto bg-paper border border-line rounded-lg overflow-hidden"></div>
             </div>
@@ -632,8 +594,7 @@ export class IndexBuilderStudio {
             <!-- Live Top 8 Leaderboard Preview -->
             <div class="p-4 bg-card border border-line rounded-xl shadow-sm">
               <div class="flex items-center justify-between mb-2">
-                <span class="font-mono text-xs uppercase tracking-wider text-muted font-semibold">Live Top Leaderboard</span>
-                <span class="font-mono text-[10px] text-moss font-semibold">Instant Recalculation</span>
+                <span class="font-mono text-xs uppercase tracking-wider text-muted font-semibold">Top Leaderboard</span>
               </div>
               <div id="builder-live-leaderboard" class="divide-y divide-line/60 border border-line rounded-lg overflow-hidden text-xs"></div>
             </div>
@@ -642,43 +603,112 @@ export class IndexBuilderStudio {
       </div>
     `;
 
-    this.renderLiveMapAndLeaderboard();
     this.attachEventListeners(container);
+    this.updateCatalogGrid();
+    this.renderLivePreviews();
   }
 
-  renderLiveMapAndLeaderboard() {
-    if (Object.keys(this.liveScores).length > 0) {
-      renderChoroplethMap('builder-live-map-container', this.liveScores, {
-        palette: 'moss_gold',
-        showLegend: true,
-        label: 'Live Composite Score'
-      });
+  updateCatalogGrid() {
+    const grid = document.getElementById('builder-catalog-grid');
+    if (!grid) return;
 
-      const leadEl = document.getElementById('builder-live-leaderboard');
-      if (leadEl) {
-        const sorted = Object.entries(this.liveScores)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 8);
+    const unselected = INDICATOR_LIST.filter(ind => !this.activeIndicators.some(i => i.id === ind.id));
+    const filteredCatalog = unselected.filter(ind => {
+      const q = this.searchQuery.toLowerCase();
+      const matchesSearch = !q || ind.name.toLowerCase().includes(q) || (ind.short && ind.short.toLowerCase().includes(q)) || (ind.id && ind.id.toLowerCase().includes(q));
+      const matchesDomain = this.selectedDomainFilter === 'all' || ind.domain === this.selectedDomainFilter;
+      const matchesType = this.selectedTypeFilter === 'all' || ind.type === this.selectedTypeFilter;
+      return matchesSearch && matchesDomain && matchesType;
+    });
 
-        leadEl.innerHTML = sorted.map(([iso, score], idx) => {
-          const c = getCountry(iso);
-          return `
-            <div class="p-2 flex items-center justify-between bg-card hover:bg-paper transition">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="font-mono text-[11px] font-bold text-muted w-5">#${idx + 1}</span>
-                <span class="font-sans font-semibold text-xs text-ink truncate">${c.name}</span>
-                <span class="font-mono text-[9.5px] text-muted">(${iso})</span>
-              </div>
-              <span class="font-mono font-bold text-xs text-moss shrink-0">${score.toFixed(1)}</span>
+    if (filteredCatalog.length === 0) {
+      grid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-muted font-mono">No matching indicators found.</div>';
+      return;
+    }
+
+    grid.innerHTML = filteredCatalog.map(ind => {
+      const domainInfo = DOMAINS[ind.domain] || { color: '#2E6B57', label: 'Domain' };
+      const isComposite = ind.type === 'composite';
+
+      return `
+        <div class="p-2.5 bg-paper border border-line rounded-lg flex items-center justify-between hover:border-moss transition gap-2">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full shrink-0" style="background:${domainInfo.color}"></span>
+              <span class="font-sans font-semibold text-[11px] text-ink truncate">${ind.name}</span>
             </div>
-          `;
-        }).join('');
-      }
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${isComposite ? 'bg-slate/15 text-slate border border-slate/30' : 'bg-moss/15 text-moss border border-moss/30'}">${isComposite ? 'COMPOSITE' : 'PRIMARY'}</span>
+              <span class="text-[9.5px] text-muted font-mono truncate">· ${domainInfo.label.split(' ')[0]}</span>
+            </div>
+          </div>
+          <button type="button" class="add-ind-btn px-2 py-1 rounded bg-card border border-line hover:bg-moss hover:text-white hover:border-moss font-mono text-[10.5px] shrink-0 transition font-semibold" data-id="${ind.id}">
+            + Add
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.add-ind-btn').forEach(btn => {
+      btn.onclick = () => this.addIndicator(btn.dataset.id);
+    });
+  }
+
+  calculateLive() {
+    const normalizedSubs = this.activeIndicators.map(item => {
+      const ind = INDICATORS[item.id];
+      if (!ind || !ind.data) return null;
+      const normalizedData = normalizeIndicator(ind.data, {
+        method: this.normalizationMethod,
+        polarity: item.polarity,
+        transform: item.transform,
+        clipMin: item.clipMin,
+        clipMax: item.clipMax
+      });
+      return {
+        id: item.id,
+        weight: item.weight,
+        data: normalizedData
+      };
+    }).filter(Boolean);
+
+    this.liveScores = calculateCompositeIndex(normalizedSubs, this.aggregationFormula);
+  }
+
+  renderLivePreviews() {
+    this.calculateLive();
+    const mapContainer = document.getElementById('builder-live-map-container');
+    if (mapContainer) {
+      renderChoroplethMap(mapContainer, this.liveScores, {
+        palette: 'moss_gold',
+        isMini: true,
+        height: 220
+      });
+    }
+
+    const leaderboardEl = document.getElementById('builder-live-leaderboard');
+    if (leaderboardEl) {
+      const top8 = Object.entries(this.liveScores)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+      leaderboardEl.innerHTML = top8.map(([iso, score], idx) => {
+        const c = getCountry(iso) || { name: iso };
+        return `
+          <div class="p-2 flex items-center justify-between bg-card hover:bg-paper transition">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-mono text-[11px] font-bold text-muted w-5">#${idx + 1}</span>
+              <span class="font-sans font-semibold text-xs text-ink truncate">${c.name}</span>
+              <span class="font-mono text-[9.5px] text-muted">(${iso})</span>
+            </div>
+            <span class="font-mono font-bold text-xs text-moss shrink-0">${score.toFixed(1)}</span>
+          </div>
+        `;
+      }).join('');
     }
   }
 
   attachEventListeners(container) {
-    // Custom Name & Description input
     const nameInput = container.querySelector('#custom-index-name-input');
     if (nameInput) {
       nameInput.oninput = e => {
@@ -695,7 +725,6 @@ export class IndexBuilderStudio {
       };
     }
 
-    // Save Buttons
     const saveBtn = container.querySelector('#btn-save-index');
     const saveAsBtn = container.querySelector('#btn-save-as-new');
     const statusMsg = container.querySelector('#save-status-msg');
@@ -704,7 +733,7 @@ export class IndexBuilderStudio {
       saveBtn.onclick = () => {
         this.saveCurrentIndex(this.customIndexName, this.customIndexDesc);
         if (statusMsg) {
-          statusMsg.textContent = '✓ Saved to your library!';
+          statusMsg.textContent = '✓ Saved!';
           setTimeout(() => { if (statusMsg) statusMsg.textContent = ''; }, 3000);
         }
       };
@@ -712,7 +741,7 @@ export class IndexBuilderStudio {
 
     if (saveAsBtn) {
       saveAsBtn.onclick = () => {
-        this.activeSavedId = null; // Forces new save
+        this.activeSavedId = null;
         const copyName = `${this.customIndexName} (Copy)`;
         this.saveCurrentIndex(copyName, this.customIndexDesc);
         if (statusMsg) {
@@ -722,36 +751,29 @@ export class IndexBuilderStudio {
       };
     }
 
-    // Saved Indices load & delete buttons
     container.querySelectorAll('.load-saved-btn').forEach(btn => {
-      btn.onclick = () => this.loadSavedIndex(btn.dataset.savedId);
+      btn.onclick = () => this.loadSavedIndex(btn.dataset.id);
     });
 
     container.querySelectorAll('.del-saved-btn').forEach(btn => {
       btn.onclick = e => {
         e.stopPropagation();
-        if (confirm('Delete this saved custom index?')) {
-          this.deleteSavedIndex(btn.dataset.savedId);
-        }
+        this.deleteSavedIndex(btn.dataset.id);
       };
     });
 
-    // Presets
-    container.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.onclick = () => this.loadBundle(btn.dataset.bundle);
+    container.querySelectorAll('.bundle-preset-btn').forEach(btn => {
+      btn.onclick = () => this.loadBundle(btn.dataset.id);
     });
 
-    // Sliders
     container.querySelectorAll('.weight-slider').forEach(slider => {
       slider.oninput = e => this.setWeight(slider.dataset.id, parseFloat(e.target.value));
     });
 
-    // Locks
     container.querySelectorAll('.lock-btn').forEach(btn => {
       btn.onclick = () => this.toggleLock(btn.dataset.id);
     });
 
-    // Info & Settings Drawer Toggles
     container.querySelectorAll('.info-btn').forEach(btn => {
       btn.onclick = () => this.toggleInfo(btn.dataset.id);
     });
@@ -760,7 +782,6 @@ export class IndexBuilderStudio {
       btn.onclick = () => this.toggleSettings(btn.dataset.id);
     });
 
-    // Transform and Polarity selects
     container.querySelectorAll('.transform-sel').forEach(sel => {
       sel.onchange = e => this.updateIndicatorConfig(sel.dataset.id, { transform: e.target.value });
     });
@@ -769,7 +790,6 @@ export class IndexBuilderStudio {
       sel.onchange = e => this.updateIndicatorConfig(sel.dataset.id, { polarity: parseInt(e.target.value) });
     });
 
-    // Min / Max cap inputs
     container.querySelectorAll('.clip-min-input').forEach(input => {
       input.onchange = e => {
         const val = e.target.value.trim() === '' ? null : parseFloat(e.target.value);
@@ -784,44 +804,40 @@ export class IndexBuilderStudio {
       };
     });
 
-    // Remove
     container.querySelectorAll('.remove-btn').forEach(btn => {
       btn.onclick = () => this.removeIndicator(btn.dataset.id);
     });
 
-    // Add
-    container.querySelectorAll('.add-ind-btn').forEach(btn => {
-      btn.onclick = () => this.addIndicator(btn.dataset.id);
-    });
-
-    // Dropdowns
     const aggSel = container.querySelector('#sel-aggregation');
     if (aggSel) aggSel.onchange = e => this.setAggregation(e.target.value);
 
     const normSel = container.querySelector('#sel-normalization');
     if (normSel) normSel.onchange = e => this.setNormalization(e.target.value);
 
-    // Helpers
     const eqBtn = container.querySelector('#btn-equalize');
     if (eqBtn) eqBtn.onclick = () => this.equalizeWeights();
 
     const n100Btn = container.querySelector('#btn-norm100');
     if (n100Btn) n100Btn.onclick = () => this.normalizeWeightsTo100();
 
-    // Type filter tabs
     container.querySelectorAll('.catalog-type-btn').forEach(btn => {
       btn.onclick = () => {
         this.selectedTypeFilter = btn.dataset.type;
-        this.render();
+        container.querySelectorAll('.catalog-type-btn').forEach(b => {
+          b.classList.remove('bg-card', 'font-bold', 'text-ink', 'shadow-xs');
+          b.classList.add('text-muted');
+        });
+        btn.classList.add('bg-card', 'font-bold', 'text-ink', 'shadow-xs');
+        btn.classList.remove('text-muted');
+        this.updateCatalogGrid();
       };
     });
 
-    // Search and filter
     const searchInput = container.querySelector('#catalog-search');
     if (searchInput) {
       searchInput.oninput = e => {
         this.searchQuery = e.target.value;
-        this.render();
+        this.updateCatalogGrid();
       };
     }
 
@@ -829,14 +845,14 @@ export class IndexBuilderStudio {
     if (domainFilter) {
       domainFilter.onchange = e => {
         this.selectedDomainFilter = e.target.value;
-        this.render();
+        this.updateCatalogGrid();
       };
     }
 
-    // World Bank Drawer Open
     const wbBtn = container.querySelector('#btn-open-wb-drawer');
     if (wbBtn) {
       wbBtn.onclick = () => this.onOpenWorldBankDrawer();
     }
   }
 }
+

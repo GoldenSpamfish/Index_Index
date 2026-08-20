@@ -209,76 +209,72 @@ export class ImporterExporterModule {
     container.innerHTML = `
       <div class="space-y-6">
         
-        <!-- Live World Bank Open Data Explorer Card -->
-        <div class="p-6 bg-card border border-line rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-moss/15 text-moss border border-moss/30">DIRECT API INGESTION</span>
-              <span class="text-xs font-mono text-muted">29,500+ Development Datasets</span>
-            </div>
-            <h3 class="font-serif font-semibold text-lg text-ink">Explore World Bank & Global Open Data</h3>
-            <p class="text-xs text-muted font-sans max-w-xl">
-              Search and stream live indicators across health, energy, trade, demographics, and technology without uploading files.
+        <!-- World Bank Catalog Card -->
+        <div class="p-5 bg-card border border-line rounded-xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-serif font-semibold text-base text-ink">World Bank Indicator Catalog</h3>
+            <p class="text-xs text-muted font-sans mt-0.5">
+              Search and import indicators directly from the World Bank API.
             </p>
           </div>
-          <button type="button" id="btn-open-wb-drawer-studio" class="px-5 py-3 rounded-xl bg-ink text-white hover:bg-moss font-mono text-xs font-semibold shadow-xs transition shrink-0">
-            Open World Bank Catalog →
+          <button type="button" id="btn-open-wb-drawer-studio" class="px-4 py-2 rounded-xl bg-ink text-white hover:bg-moss font-mono text-xs font-semibold shadow-xs transition shrink-0">
+            Open Catalog →
           </button>
         </div>
 
         <!-- Import Custom Data -->
-        <div class="p-6 bg-card border border-line rounded-xl shadow-xs">
-          <div class="mb-4">
-            <h3 class="font-serif font-semibold text-lg text-ink">Import Custom Indicator Data from File</h3>
-            <p class="text-xs text-muted font-sans">
-              Drag and drop any CSV or JSON file containing country-level data (with ISO3 codes or country names). It will be immediately added to the catalog.
+        <div class="p-5 bg-card border border-line rounded-xl shadow-xs">
+          <div class="mb-3">
+            <h3 class="font-serif font-semibold text-base text-ink">Import Custom Dataset</h3>
+            <p class="text-xs text-muted font-sans mt-0.5">
+              Upload a CSV or JSON file containing country-level data (ISO3 codes or country names).
             </p>
           </div>
 
-          <div id="drop-zone" class="border-2 border-dashed border-line hover:border-moss rounded-xl p-8 text-center cursor-pointer transition-all bg-paper/60 hover:bg-paper">
-            <div class="mx-auto w-12 h-12 rounded-full bg-moss/10 flex items-center justify-center text-moss mb-3">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <div id="drop-zone" class="border-2 border-dashed border-line hover:border-moss rounded-xl p-6 text-center cursor-pointer transition-all bg-paper/60 hover:bg-paper">
+            <div class="mx-auto w-10 h-10 rounded-full bg-moss/10 flex items-center justify-center text-moss mb-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             </div>
-            <p class="font-sans text-sm font-semibold text-ink mb-1">Click to browse or drop CSV / JSON file here</p>
-            <p class="font-mono text-xs text-muted">Format: <span class="bg-card px-1.5 py-0.5 rounded border border-line">ISO3, Value</span> or <span class="bg-card px-1.5 py-0.5 rounded border border-line">CountryName, Score</span></p>
+            <p class="font-sans text-xs font-semibold text-ink mb-1">Click to browse or drop file here</p>
+            <p class="font-mono text-[11px] text-muted">Format: <span class="bg-card px-1.5 py-0.5 rounded border border-line">ISO3, Value</span></p>
             <input type="file" id="file-input" accept=".csv,.json,.txt" class="hidden"/>
           </div>
 
           <div id="import-status" class="mt-3 text-xs font-mono hidden"></div>
         </div>
 
-        <!-- Export & 1-Click Sharing -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Export & Share -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <!-- Export Data -->
-          <div class="p-6 bg-card border border-line rounded-xl shadow-xs flex flex-col justify-between">
+          <div class="p-5 bg-card border border-line rounded-xl shadow-xs flex flex-col justify-between">
             <div>
-              <h3 class="font-serif font-semibold text-lg text-ink mb-1">Export "${activeName}"</h3>
+              <h3 class="font-serif font-semibold text-base text-ink mb-1">Export "${activeName}"</h3>
               <p class="text-xs text-muted font-sans mb-4">
-                Download your composite rankings, calculated scores, and underlying sub-indicators.
+                Download calculated scores and sub-indicator values.
               </p>
             </div>
             <div class="flex gap-3">
-              <button type="button" id="btn-export-csv" class="flex-1 py-2.5 px-4 rounded-lg bg-paper border border-line hover:bg-card hover:border-moss text-xs font-mono font-semibold text-ink transition">
+              <button type="button" id="btn-export-csv" class="flex-1 py-2 px-3 rounded-lg bg-paper border border-line hover:bg-card hover:border-moss text-xs font-mono font-semibold text-ink transition">
                 Export CSV
               </button>
-              <button type="button" id="btn-export-json" class="flex-1 py-2.5 px-4 rounded-lg bg-paper border border-line hover:bg-card hover:border-moss text-xs font-mono font-semibold text-ink transition">
+              <button type="button" id="btn-export-json" class="flex-1 py-2 px-3 rounded-lg bg-paper border border-line hover:bg-card hover:border-moss text-xs font-mono font-semibold text-ink transition">
                 Export JSON
               </button>
             </div>
           </div>
 
-          <!-- 1-Click URL Share -->
-          <div class="p-6 bg-card border border-line rounded-xl shadow-xs flex flex-col justify-between">
+          <!-- URL Share -->
+          <div class="p-5 bg-card border border-line rounded-xl shadow-xs flex flex-col justify-between">
             <div>
-              <h3 class="font-serif font-semibold text-lg text-ink mb-1">Shareable Index URL</h3>
+              <h3 class="font-serif font-semibold text-base text-ink mb-1">Shareable Configuration URL</h3>
               <p class="text-xs text-muted font-sans mb-4">
-                Your entire index configuration (name, weights, math, and clipping) is serialized into a permanent link.
+                Index parameters (indicators, weights, math) encoded into a shareable link.
               </p>
             </div>
             <div>
               <div class="flex gap-2">
                 <input type="text" id="share-url-input" readonly class="flex-1 p-2 bg-paper border border-line rounded-lg font-mono text-xs text-muted"/>
-                <button type="button" id="btn-copy-url" class="py-2 px-4 rounded-lg bg-ink text-white hover:bg-moss text-xs font-mono font-semibold transition shrink-0">
+                <button type="button" id="btn-copy-url" class="py-2 px-3.5 rounded-lg bg-ink text-white hover:bg-moss text-xs font-mono font-semibold transition shrink-0">
                   Copy Link
                 </button>
               </div>

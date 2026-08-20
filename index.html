@@ -51,13 +51,12 @@
   <header>
     <div class="wrap flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div class="flex items-center gap-4 sm:gap-5">
-        <img src="./src/index_index_logo.svg" alt="Global Index Observatory Logo" class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl shadow-xs border border-line bg-card p-1.5"/>
+        <img src="./src/index_index_logo.svg" alt="Global Index Observatory Logo" class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl shadow-xs border border-line bg-card p-1.5"/>
         <div>
-          <span class="badge">Observatory · v1.0</span>
           <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-ink mb-1">
             Global Index Observatory
           </h1>
-          <p class="font-mono text-xs text-muted">Comparative Benchmark Laboratory & Multidimensional Index Builder</p>
+          <p class="font-mono text-xs text-muted">Comparative Benchmark Observatory & Composite Index Builder</p>
         </div>
       </div>
       <div class="hidden lg:flex items-center gap-3">
@@ -69,9 +68,9 @@
         </a>
       </div>
     </div>
-    <div class="wrap mt-4">
+    <div class="wrap mt-3">
       <p class="lead max-w-4xl text-sm sm:text-base">
-        An open platform to build custom composite indices, dissect correlations across 124 global benchmarks, explore country performance anatomy, and evaluate methodological sensitivity.
+        Build custom composite indices, analyze correlations across international development indicators, and evaluate model sensitivity.
       </p>
     </div>
   </header>
@@ -103,7 +102,7 @@
 
       <!-- Quick Metrics Ribbon -->
       <div class="statline" id="top-statline">
-        <div class="stat-title">Current Composite Model Summary</div>
+        <div class="stat-title">Composite Model Summary</div>
         <div class="stat"><span class="k">Active Index</span><span class="v text-moss" id="stat-active-name">Human Flourishing</span></div>
         <div class="stat"><span class="k">Countries Scored</span><span class="v" id="stat-countries-count">183</span></div>
         <div class="stat"><span class="k">Top Ranked Country</span><span class="v text-gold" id="stat-top-country">—</span></div>
@@ -116,7 +115,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 class="font-serif font-bold text-lg text-ink" id="map-title-display">Global Choropleth Map</h3>
-            <p class="text-xs text-muted font-sans">Click or drag a box to zoom into any continent. Hover over any nation to inspect its profile.</p>
+            <p class="text-xs text-muted font-sans">Hover or click a nation to inspect its component profile.</p>
           </div>
 
           <div class="flex items-center gap-3">
@@ -140,8 +139,8 @@
           <!-- Country Flower Glyphs Profile Inset (Compact 3 cols) -->
           <div class="lg:col-span-3 bg-paper border border-line rounded-xl p-3 flex flex-col justify-between shadow-xs">
             <div class="border-b border-line pb-1.5 mb-2">
-              <span class="font-mono text-[11px] text-muted uppercase tracking-wider font-semibold block">Dimension Flower</span>
-              <span class="text-[11px] text-ink2 font-sans">Multi-dimensional balance</span>
+              <span class="font-mono text-[11px] text-muted uppercase tracking-wider font-semibold block">Component Profile</span>
+              <span class="text-[11px] text-ink2 font-sans">Sub-indicator breakdown</span>
             </div>
 
             <div id="country-flower-container" class="py-1"></div>
@@ -156,7 +155,7 @@
           <div class="flex items-center justify-between mb-3">
             <div>
               <h4 class="font-serif font-bold text-base text-ink">Score Distribution</h4>
-              <p class="text-xs text-muted font-sans">Frequency of country scores across the 0–100 spectrum</p>
+              <p class="text-xs text-muted font-sans">Frequency of scores across the 0–100 spectrum</p>
             </div>
             <span class="text-xs font-mono text-muted">14 Bins</span>
           </div>
@@ -186,7 +185,7 @@
         <h2 class="text-2xl sm:text-3xl font-serif font-bold">Custom Index Builder</h2>
       </div>
       <p class="lead">
-        Mix and match any combination of global indicators, calibrate weights with responsive sliders, and choose your preferred aggregation mathematics (such as geometric means that penalize multidimensional deficits).
+        Select indicators, adjust weights, and choose aggregation methods to compute composite rankings.
       </p>
 
       <div id="index-builder-container"></div>
@@ -198,10 +197,10 @@
     <div class="wrap space-y-6">
       <div class="sec-h">
         <span class="num">03</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Correlation & Comparison Studio</h2>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Correlation Studio</h2>
       </div>
       <p class="lead">
-        Explore linear and non-linear relationships between your custom index and standard international benchmarks, calculating Pearson \(r\), Spearman rank correlation \(\rho\), and polynomial regression curves.
+        Calculate linear and rank correlations (Pearson r, Spearman &rho;) and regression fits between indicators.
       </p>
 
       <div id="correlation-studio-container"></div>
@@ -213,10 +212,10 @@
     <div class="wrap space-y-6">
       <div class="sec-h">
         <span class="num">04</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Country & Regional Performance Anatomy</h2>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Country Performance Anatomy</h2>
       </div>
       <p class="lead">
-        Diagnose why specific countries or regional archetypes (e.g. Nordic economies, East Asian Tigers, Latin America) excel or lag across index families, uncovering the structural collinearity behind international rankings.
+        Inspect individual country score breakdowns, top component drivers, and indicator distributions.
       </p>
 
       <div id="performance-anatomy-container"></div>
@@ -228,10 +227,10 @@
     <div class="wrap space-y-6">
       <div class="sec-h">
         <span class="num">05</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-bold">2D Bivariate Matrix & Quadrant Field</h2>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold">2D Bivariate Matrix</h2>
       </div>
       <p class="lead">
-        Position every nation on a 2D matrix (e.g. Wealth across, Custom Index up) across 16 discrete tier combinations to identify aspirational outliers and structural trade-offs.
+        Cross-tabulate two indicators across a 4x4 matrix to analyze bivariate groupings and quadrants.
       </p>
 
       <div id="bivariate-quadrant-container"></div>
@@ -243,10 +242,10 @@
     <div class="wrap space-y-6">
       <div class="sec-h">
         <span class="num">06</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Sensitivity & Leave-One-Out Analysis</h2>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Sensitivity Analysis</h2>
       </div>
       <p class="lead">
-        Test the robustness of your index: determine which sub-indicators account for the true statistical variance, how rankings shift if a metric is omitted, and map which nations benefit most from each indicator.
+        Evaluate model robustness through Leave-One-Out (LOO) rank delta calculations and variance decomposition.
       </p>
 
       <div id="sensitivity-analyzer-container"></div>
@@ -258,10 +257,10 @@
     <div class="wrap space-y-6">
       <div class="sec-h">
         <span class="num">07</span>
-        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Data Studio & Sharing</h2>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold">Data Studio & Export</h2>
       </div>
       <p class="lead">
-        Import your own custom datasets from CSV or JSON files, download composite rankings, or generate a permanent shareable URL containing your complete index specification.
+        Export calculated rankings (CSV, JSON), upload custom datasets, or generate shareable configuration URLs.
       </p>
 
       <div id="data-studio-container"></div>
@@ -269,13 +268,12 @@
   </section>
 
   <!-- Footer -->
-  <footer class="border-t border-line py-10 text-xs font-mono text-muted bg-paper">
+  <footer class="border-t border-line py-8 text-xs font-mono text-muted bg-paper">
     <div class="wrap flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <img src="./src/index_index_logo.svg" alt="Global Index Observatory Logo" class="w-6 h-6 rounded shrink-0 border border-line bg-card p-0.5"/>
-        <div>Global Index Observatory · Built for open international research & benchmark investigation.</div>
+        <img src="./src/index_index_logo.svg" alt="Global Index Observatory Logo" class="w-5 h-5 rounded shrink-0 border border-line bg-card p-0.5"/>
+        <div>Global Index Observatory · International development benchmarks & composite models.</div>
       </div>
-      <div>100% Client-Side & Portable. Zero backend required.</div>
     </div>
   </footer>
 
@@ -283,6 +281,6 @@
   <div id="world-bank-drawer-container"></div>
 
   <!-- App Bootstrap -->
-  <script type="module" src="./src/app.js?v=2.1"></script>
+  <script type="module" src="./src/app.js?v=2.2"></script>
 </body>
 </html>
