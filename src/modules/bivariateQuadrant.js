@@ -2,7 +2,7 @@
 import { INDICATORS, INDICATOR_LIST, DOMAINS, BENCHMARK_BUNDLES } from '../data/indicators.js';
 import { getCountry } from '../data/countries.js';
 import { normalizeIndicator, calculateCompositeIndex } from '../engine/stats.js';
-import { renderBivariateChoroplethMap } from './mapEngine.js';
+import { renderBivariateChoroplethMap, BIVARIATE_4X4_COLORS } from './mapEngine.js';
 
 const STORAGE_KEY = 'gio_saved_custom_indices_v1';
 
@@ -223,15 +223,13 @@ export class BivariateQuadrantModule {
         const count = cellCountries.length;
 
         // Bivariate 2D Color blending
-        const xIntensity = c / 3; // 0 to 1
-        const yIntensity = r / 3; // 0 to 1
-        const baseColor = this.getBivariateColor(xIntensity, yIntensity);
+        const baseColor = this.getBivariateColor(r, c);
 
         matrixHtml += `
           <button type="button" class="bivariate-cell flex flex-col items-center justify-center rounded-lg border transition relative ${
             isSelected ? 'ring-2 ring-ink ring-offset-2 font-bold scale-105 z-10' : 'hover:opacity-90'
           }" style="background:${baseColor};border-color:rgba(0,0,0,0.08);" data-row="${r}" data-col="${c}" title="Y: ${tiers[r]} | X: ${tiers[c]} (${count} countries)">
-            <span class="text-xs font-mono font-bold ${yIntensity > 0.5 || xIntensity > 0.5 ? 'text-white' : 'text-ink'}">${count}</span>
+            <span class="text-xs font-mono font-bold ${r > 1 || c > 1 ? 'text-white' : 'text-ink'}">${count}</span>
           </button>
         `;
       }
@@ -456,25 +454,25 @@ export class BivariateQuadrantModule {
     this.attachEventListeners(container);
   }
 
-  getBivariateColor(xInt, yInt) {
-    const r = Math.round(230 - xInt * 120 + yInt * 20);
-    const g = Math.round(235 - yInt * 110 - xInt * 30);
-    const b = Math.round(240 - xInt * 90 - yInt * 130);
-    return `rgb(${Math.max(30, Math.min(240, r))}, ${Math.max(40, Math.min(240, g))}, ${Math.max(50, Math.min(240, b))})`;
+  getBivariateColor(r, c) {
+    if (BIVARIATE_4X4_COLORS && BIVARIATE_4X4_COLORS[r] && BIVARIATE_4X4_COLORS[r][c]) {
+      return BIVARIATE_4X4_COLORS[r][c];
+    }
+    const xIntensity = c / 3;
+    const yIntensity = r / 3;
+    const red = Math.round(230 - xIntensity * 120 + yIntensity * 20);
+    const green = Math.round(235 - yIntensity * 110 - xIntensity * 30);
+    const blue = Math.round(240 - xIntensity * 90 - yIntensity * 130);
+    return `rgb(${Math.max(30, Math.min(240, red))}, ${Math.max(40, Math.min(240, green))}, ${Math.max(50, Math.min(240, blue))})`;
   }
 
   renderBivariateMap(gridMatrix, dataXObj, dataYObj) {
-    const highlightIsos = this.selectedCell
-      ? gridMatrix[this.selectedCell[0]][this.selectedCell[1]].map(c => c.iso)
-      : null;
+    const normX = normalizeIndicator(dataXObj ? dataXObj.data : {}, 'minmax', dataXObj?.polarity !== undefined ? dataXObj.polarity : 1);
+    const normY = normalizeIndicator(dataYObj ? dataYObj.data : {}, 'minmax', dataYObj?.polarity !== undefined ? dataYObj.polarity : 1);
 
-    const normX = normalizeIndicator(dataXObj ? dataXObj.data : {}, 'minmax', dataXObj?.polarity || 1);
-    const normY = normalizeIndicator(dataYObj ? dataYObj.data : {}, 'minmax', dataYObj?.polarity || 1);
-
-    renderBivariateChoroplethMap('bivariate-map-canvas', normX, normY, {
-      labelX: dataXObj?.name || 'X',
-      labelY: dataYObj?.name || 'Y',
-      highlightIsos
+    renderBivariateChoroplethMap('bivariate-map-canvas', normX, normY, this.selectedCell, {
+      nameX: dataXObj?.name || 'X',
+      nameY: dataYObj?.name || 'Y'
     });
   }
 

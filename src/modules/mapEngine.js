@@ -225,6 +225,7 @@ export function renderBivariateChoroplethMap(containerId, normX, normY, selected
 
   let countrySvgPaths = '';
   let matchCount = 0;
+  const isCellSelected = Array.isArray(selectedCell) && selectedCell.length === 2;
 
   Object.keys(paths).forEach(iso => {
     const x = normX[iso];
@@ -238,11 +239,11 @@ export function renderBivariateChoroplethMap(containerId, normX, normY, selected
     let strokeWidth = '0.5';
 
     if (hasData) {
-      const col = Math.min(3, Math.floor(x / 25));
-      const row = Math.min(3, Math.floor(y / 25));
-      const cellColor = BIVARIATE_4X4_COLORS[row][col];
+      const col = Math.min(3, Math.max(0, Math.floor(x / 25)));
+      const row = Math.min(3, Math.max(0, Math.floor(y / 25)));
+      const cellColor = (BIVARIATE_4X4_COLORS[row] && BIVARIATE_4X4_COLORS[row][col]) || '#73B690';
 
-      if (selectedCell) {
+      if (isCellSelected) {
         const isMatch = selectedCell[0] === row && selectedCell[1] === col;
         if (isMatch) {
           matchCount++;
@@ -268,7 +269,7 @@ export function renderBivariateChoroplethMap(containerId, normX, normY, selected
     }
   });
 
-  const bannerText = selectedCell
+  const bannerText = isCellSelected
     ? `Spotlight: ${tiers[selectedCell[0]]} Y × ${tiers[selectedCell[1]]} X (${matchCount} countries)`
     : `Bivariate 2D Distribution (Click matrix cells to isolate)`;
 
