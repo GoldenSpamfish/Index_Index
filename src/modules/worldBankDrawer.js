@@ -2,7 +2,6 @@
 import {
   CURATED_WB_INDICATORS,
   searchCuratedWorldBankCatalog,
-  searchLiveWorldBankApi,
   fetchWorldBankIndicatorData
 } from '../engine/worldBankApi.js';
 import { DOMAINS, INDICATORS } from '../data/indicators.js';
@@ -18,10 +17,6 @@ export class WorldBankDrawerModule {
     this.loadingIndicatorId = null;
     this.importSuccessId = null;
     this.errorMessage = null;
-
-    this.isLiveSearching = false;
-    this.liveSearchResults = [];
-    this.debounceTimer = null;
   }
 
   init() {
@@ -38,7 +33,6 @@ export class WorldBankDrawerModule {
     this.searchQuery = initialQuery;
     this.errorMessage = null;
     this.importSuccessId = null;
-    this.liveSearchResults = [];
     this.renderModal();
 
     setTimeout(() => {
@@ -63,17 +57,6 @@ export class WorldBankDrawerModule {
     const container = document.getElementById(this.containerId);
     if (!container) return;
 
-    const quickPresets = [
-      { id: 'SH.MED.BEDS.ZS', label: 'Hospital Beds' },
-      { id: 'EG.ELC.RNEW.ZS', label: 'Renewable Electricity' },
-      { id: 'TX.VAL.TECH.MF.ZS', label: 'High-Tech Exports' },
-      { id: 'SL.TLF.CACT.FE.ZS', label: 'Female Labor Force' },
-      { id: 'IT.NET.USER.ZS', label: 'Internet Adoption' },
-      { id: 'GB.XPD.RSDV.GD.ZS', label: 'R&D % GDP' },
-      { id: 'GC.DOD.TOTL.GD.ZS', label: 'Gov Debt % GDP' },
-      { id: 'SE.ADT.LITR.ZS', label: 'Adult Literacy' }
-    ];
-
     container.innerHTML = `
       <div id="wb-drawer-backdrop" class="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 transition-all duration-200">
         <div class="bg-card border border-line rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -89,16 +72,6 @@ export class WorldBankDrawerModule {
             </button>
           </div>
 
-          <!-- Quick Presets Ribbon (No ugly horizontal scrollbar) -->
-          <div class="px-5 py-2 bg-paper/40 border-b border-line flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs font-mono">
-            <span class="text-[10px] text-muted font-bold uppercase tracking-wider shrink-0 mr-1">Popular:</span>
-            ${quickPresets.map(qp => `
-              <button type="button" class="wb-preset-chip px-2.5 py-1 rounded-lg border border-line bg-card hover:border-moss hover:text-moss text-[11px] text-ink2 transition whitespace-nowrap shrink-0" data-id="${qp.id}">
-                ${qp.label}
-              </button>
-            `).join('')}
-          </div>
-
           <!-- Search & Filter Controls -->
           <div class="p-4 border-b border-line space-y-3 bg-card">
             <div class="flex flex-col sm:flex-row gap-3">
@@ -106,7 +79,7 @@ export class WorldBankDrawerModule {
                 <input
                   type="text"
                   id="wb-drawer-search-input"
-                  placeholder="Search indicators (e.g., hospital beds, solar, tariff, literacy)..."
+                  placeholder="Search indicators (e.g., hospital beds, solar, life expectancy, tariff, literacy, CO2)..."
                   value="${this.searchQuery}"
                   class="w-full pl-3 pr-8 py-2 bg-paper border border-line rounded-xl text-xs font-mono text-ink focus:outline-none focus:border-moss focus:ring-1 focus:ring-moss"
                 />
@@ -115,7 +88,7 @@ export class WorldBankDrawerModule {
 
               <!-- Domain Selector Tabs -->
               <select id="wb-drawer-domain-select" class="p-2 bg-paper border border-line rounded-xl text-xs font-mono text-ink shrink-0">
-                <option value="all" ${this.selectedDomain === 'all' ? 'selected' : ''}>All Domains (${CURATED_WB_INDICATORS.length} Curated)</option>
+                <option value="all" ${this.selectedDomain === 'all' ? 'selected' : ''}>All Domains (${CURATED_WB_INDICATORS.length} Indicators)</option>
                 <option value="economy" ${this.selectedDomain === 'economy' ? 'selected' : ''}>Economy & Trade</option>
                 <option value="environment" ${this.selectedDomain === 'environment' ? 'selected' : ''}>Climate & Environment</option>
                 <option value="health" ${this.selectedDomain === 'health' ? 'selected' : ''}>Health & Wellbeing</option>
@@ -135,23 +108,21 @@ export class WorldBankDrawerModule {
                   type="text"
                   id="wb-direct-code-input"
                   placeholder="e.g. SP.DYN.LE00.IN"
-                  class="px-2 py-1 bg-paper border border-line rounded text-xs text-ink w-36 uppercase"
+                  class="px-2 py-1 bg-paper border border-line rounded text-xs text-ink w-40 uppercase font-mono"
                 />
                 <button id="wb-direct-fetch-btn" class="px-3 py-1 bg-ink text-white hover:bg-moss rounded font-semibold text-xs transition">
                   Fetch Code ?
                 </button>
               </div>
 
-              <div id="wb-search-status-text" class="text-[11px] font-mono text-muted">
-                <!-- Status populated dynamically -->
-              </div>
+              <div id="wb-search-status-text" class="text-[11px] font-mono text-muted"></div>
             </div>
 
             <div id="wb-drawer-error-container"></div>
           </div>
 
           <!-- Search Results List Container -->
-          <div id="wb-drawer-results-list" class="p-4 overflow-y-auto flex-1 space-y-2.5 bg-paper/30 min-h-[220px]">
+          <div id="wb-drawer-results-list" class="p-4 overflow-y-auto flex-1 space-y-2.5 bg-paper/30 min-h-[260px] max-h-[55vh]">
             <!-- Results items populated dynamically without replacing the input -->
           </div>
 
@@ -207,7 +178,6 @@ export class WorldBankDrawerModule {
           searchInput.focus();
         }
         clearBtn.classList.add('hidden');
-        this.liveSearchResults = [];
         this.updateResultsList();
       };
     }
@@ -219,22 +189,6 @@ export class WorldBankDrawerModule {
         this.updateResultsList();
       };
     }
-
-    // Preset chips
-    container.querySelectorAll('.wb-preset-chip').forEach(btn => {
-      btn.onclick = () => {
-        const indId = btn.dataset.id;
-        const indDef = CURATED_WB_INDICATORS.find(i => i.id === indId);
-        if (indDef) {
-          this.executeImport(indId, {
-            name: indDef.name,
-            domain: indDef.domain,
-            unit: indDef.unit,
-            polarity: indDef.polarity
-          });
-        }
-      };
-    });
 
     // Direct code input
     const directFetchBtn = container.querySelector('#wb-direct-fetch-btn');
@@ -254,40 +208,7 @@ export class WorldBankDrawerModule {
 
   handleSearchInput(query) {
     this.searchQuery = query;
-
-    // Instant local curated filter on every keystroke
     this.updateResultsList();
-
-    clearTimeout(this.debounceTimer);
-
-    // Live search debouncing (300ms)
-    if (this.searchQuery.trim().length >= 3) {
-      this.isLiveSearching = true;
-      this.updateStatusText();
-
-      this.debounceTimer = setTimeout(async () => {
-        const liveResults = await searchLiveWorldBankApi(this.searchQuery);
-        this.liveSearchResults = liveResults;
-        this.isLiveSearching = false;
-        this.updateStatusText();
-        this.updateResultsList();
-      }, 300);
-    } else {
-      this.isLiveSearching = false;
-      this.liveSearchResults = [];
-      this.updateStatusText();
-    }
-  }
-
-  updateStatusText() {
-    const statusEl = document.getElementById('wb-search-status-text');
-    if (!statusEl) return;
-
-    if (this.isLiveSearching) {
-      statusEl.innerHTML = '<span class="text-moss font-semibold animate-pulse">Searching World Bank API?</span>';
-    } else {
-      statusEl.innerHTML = '';
-    }
   }
 
   updateResultsList() {
@@ -309,23 +230,25 @@ export class WorldBankDrawerModule {
       }
     }
 
-    const curatedMatches = searchCuratedWorldBankCatalog(this.searchQuery, this.selectedDomain);
-    const combinedResults = [...curatedMatches, ...this.liveSearchResults.filter(l => !curatedMatches.some(c => c.id === l.id))];
+    const matchedResults = searchCuratedWorldBankCatalog(this.searchQuery, this.selectedDomain);
 
     if (footerCount) {
-      footerCount.textContent = `Found ${combinedResults.length} indicators`;
+      footerCount.textContent = `Found ${matchedResults.length} indicators`;
     }
 
-    if (combinedResults.length === 0) {
+    if (matchedResults.length === 0) {
       resultsContainer.innerHTML = `
         <div class="text-center py-12 text-muted font-mono text-xs">
-          ${this.isLiveSearching ? 'Searching World Bank API...' : `No matching indicators found for "${this.searchQuery}". Try a broader term or paste an indicator code above.`}
+          No matching indicators found for "${this.searchQuery}". Try a different keyword or paste an indicator code above.
         </div>
       `;
       return;
     }
 
-    resultsContainer.innerHTML = combinedResults.map(item => {
+    // Render top 100 results for high performance
+    const displayed = matchedResults.slice(0, 100);
+
+    resultsContainer.innerHTML = displayed.map(item => {
       const dom = DOMAINS[item.domain] || { label: 'General', color: '#2E6B57' };
       const isLoading = this.loadingIndicatorId === item.id;
       const isImported = this.importSuccessId === item.id || (INDICATORS[item.id] && INDICATORS[item.id].isExternal);
@@ -337,7 +260,6 @@ export class WorldBankDrawerModule {
               <span class="w-2.5 h-2.5 rounded-full" style="background:${dom.color}"></span>
               <span class="font-mono text-[10.5px] font-bold text-ink2 bg-paper px-1.5 py-0.5 rounded border border-line">${item.id}</span>
               <span class="text-[10px] font-mono text-muted uppercase tracking-wider">${dom.label}</span>
-              ${item.isLiveApiResult ? '<span class="text-[9.5px] font-mono text-moss bg-moss/10 px-1.5 py-0.2 rounded border border-moss/20">API Result</span>' : ''}
             </div>
 
             <h4 class="font-serif font-bold text-base text-ink mb-1">${item.name}</h4>
